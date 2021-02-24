@@ -12,6 +12,13 @@
                  [reagent "1.0.0"]]
 
 
+  :plugins [[lein-cljsbuild "1.1.8"]]
+
+  :cljsbuild {:builds [{:source-paths ["src"]
+                        :compiler {:output-to "docs/sketchflow.js"
+                                   :optimizations :advanced
+                                   :pretty-print false}}]}
+
   :source-paths ["src"]
 
   :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main"]
