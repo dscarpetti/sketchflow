@@ -1,0 +1,331 @@
+/* some style */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+#layout {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    background-color: white;
+    z-index: 2;
+}
+
+#content {
+    position: absolute;
+    top: 2em;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+}
+	      
+#drawer, #workspace {
+    transition: left 0.2s;
+}
+
+#drawer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    background-color: rgba(255,255,255, 0.75);
+    box-shadow: 0 2px 10px 0px rgba(50,50,50,0.5);
+	
+}
+
+#drawer.open-drawer {
+    left: 0;
+
+}
+
+#workspace {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+@media (max-width: 800px) {
+    #drawer {
+	left: -85vw;
+	width: 85vw;
+    }
+    #drawer.open-drawer {
+	left: 0;
+    }
+}
+
+@media (min-width: 801px) { 
+    #drawer {
+	left: -40vw;
+	width: 40vw;
+    }
+    #drawer.open-drawer {
+	left: 0;
+    }
+
+    #workspace.open-drawer {
+	left: 40vw;
+    }
+
+}
+
+
+/* Header */
+
+.header-content {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: purple;
+    color: white;
+    
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: center;
+}
+
+.header-left {
+    order: 0;
+    flex: 0 1 20%;
+    align-self: auto;
+}
+.header-center {
+    order: 0;
+    flex: 1 1 auto;
+    align-self: auto;
+    text-align: center;
+}
+.header-right {
+    order: 0;
+    flex: 0 1 20%;
+    align-self: auto;
+}
+
+
+/* tabs */
+
+.tabs {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.tab-selectors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3em;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: center;
+}
+
+.tab {
+    flex: 0 1 auto;
+    align-self: auto;
+    padding: 5px 20px;
+    border-bottom: 2px solid #ddd;
+    cursor: pointer;
+}
+.tab a, .tab a:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.tab:hover {
+    border-color: pink;
+}
+
+.tab.active {
+    border-bottom: 2px solid purple;
+}
+	 
+.tab-content {
+    position: absolute;
+    top: 3em;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+}
+/* button */
+
+button {
+    border: 1px solid purple;
+    border-radius: 5px;
+    background-color: purple;
+    color: white;
+    padding: 3px 5px;
+    margin: 2px 10px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: pink;
+}
+	   
+
+/* editor */
+
+.editor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.editor-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: center;
+    
+}
+.control {
+    flex: 0 1 auto;
+    align-self: auto;
+    text-align: center;
+}
+
+.editor-textarea {
+    position: absolute;
+    top: 2em;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.editor-textarea textarea {
+    font-family: 'Source Code Pro', monospace;
+    background-color: rgba(255,255,255,0);
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    padding: 1em;
+    resize: none;
+    box-shadow: inset 0px 0px 3px 0px pink;
+}
+.editor-textarea textarea:focus {
+    outline: none;
+    box-shadow: 0px 0px 2px 0px pink;
+}
+	 
+	
+
+/* help */
+
+#help {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    text-align: center;
+}
+
+#help h1 {
+    font-size: 2em;
+}
+
+#help section {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#help .example-code {
+    /*padding: 1em 0;*/
+    margin: 10px 50px;
+    border: 1px solid purple;
+}
+.example-code code:nth-child(odd) {
+    background-color: #f5f5f5;
+}
+
+#help code {
+    /*font-family: monospace;*/
+    font-family: 'Source Code Pro', monospace;
+    display: block;
+    text-align: left;
+    white-space: pre-wrap;
+    padding: 0.2em 1em;
+    min-height: 1.2em;
+
+}
+#help .example {
+    
+    border-bottom: 1px solid #eee;
+    margin: 3em;
+    margin-bottom: 1.5em;
+    padding-bottom: 1.5em;
+}
+
+#help .example:last-child {
+    border-bottom: none;
+}
+#help img {
+    max-width: 90%;
+}
+
+#help .list {
+    position: relative;
+}
+#help ul {
+    padding: 0;
+    padding-left: 10%;
+}
+#help .list li {
+    color: purple;
+    list-style-type: none;
+    width: 90%;
+
+}
+#help .list li:nth-child(odd){
+    background-color: #eee;
+}
+    
+
+	 
+#help .note {
+    color: #777;
+    font-size: 0.9em;
+    font-style: italic;
+}
