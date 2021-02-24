@@ -39,7 +39,7 @@
 
 (defn- draw-nodes [s parent-options nodes]
   (reduce (fn [s {:keys [id ports name children options reference]}]
-            (let [
+            (let [name (or name "?")
 
                   pid id
 

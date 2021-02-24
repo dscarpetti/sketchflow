@@ -70,7 +70,7 @@
                   (str "p_" (str/replace port-name #"[/\+\*\&\s\-\[\]\)\(]" "_")))
 
         name (if (str/blank? rest)
-               "?"
+               nil
                (-> rest
                    (str/replace #"\"" "'")
                    (str/replace #"<" "&lt;")
