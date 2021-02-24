@@ -252,7 +252,6 @@ button:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    color: red;
     padding: 1em 0;
     font-size: 0.9em;
 }
@@ -263,9 +262,11 @@ button:hover {
     word-break: break-all;
     padding: 0 1em;
 }
+
 .editor-overlay .editor-line:nth-child(odd) {
     background-color: rgba(200,200,200,0.3);
 }
+
 /* complex overlay */
 .editor-overlay-line {
     position: relative;
@@ -275,19 +276,78 @@ button:hover {
     background-color: rgba(200,200,200,0.2);
 }
 
+/*.editor-overlay-line .indent {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-right: 2px solid rgba(10,100,10,0.15);
+    border-radius: 50px;
+
+}*/
+
+.indent-border {
+    border-right: 2px solid rgba(10,100,10,0.15);
+}
+
+
 .editor-overlay-line .line-depth {
     position: absolute;
     color: #696;
+    top: 0;
+    bottom: 0;
     font-size: 0.7em;
     padding: 0.15em;
 
 }
 
+.editor-overlay-line .line-depth {
+
+}
+
+.editor-overlay-line .line-depth-controls {
+   z-index: 10;
+   position: absolute;
+   color: #696;
+   top: 0;
+   bottom: 0;
+}
+/*.line-depth-controls button {
+    margin: 1px;
+    padding: 0 0px;
+    width: 1ch;
+}*/
+
+.line-depth-controls button {
+    border: none;
+    border-radius: 3px;
+    color: #788475;
+    background-color: rgba(255,255,255,0);
+    padding: 0px 2px;
+    margin: 0;
+    text-align: center;
+    cursor: pointer;
+}
+.line-depth-controls button:first-child{
+    padding-left: 5px;
+}
+.line-depth-controls button:last-child{
+    padding-right: 5px;
+}
+
+.line-depth-controls button:hover {
+    background-color: #8DAA91;
+}
+
+
+
+
 .editor-overlay-line .line-content {
     width: 100%;
-    white-space: pre-wrap;
+    white-space: break-spaces;
+    /*white-space: pre-wrap;*/
     word-break: break-all;
     padding: 0 1em;
+    /*color: red;*/
     color: rgba(0,0,0,0);
 
 }
@@ -303,7 +363,10 @@ button:hover {
     right: 0;
 }
 
-.editor-textarea textarea {
+.editor-textarea textarea,  .editor-field {
+    /*color: rgba(0,255,0,0.5);*/
+    white-space: break-spaces;
+    /*white-space: pre-wrap;*/
     word-break: break-all;
     font-family: 'Source Code Pro', monospace;
     font-size: 0.9em;
@@ -316,7 +379,7 @@ button:hover {
     resize: none;
     box-shadow: inset 0px 0px 3px 0px #8DAA91;
 }
-.editor-textarea textarea:focus {
+.editor-textarea textarea:focus, editor-field {
     outline: none;
     box-shadow: 0px 0px 2px 0px #8DAA91;
 }

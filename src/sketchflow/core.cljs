@@ -14,7 +14,8 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (r/atom {:layout/drawer-open true
-                            :layout/pretty-lines true
+                            :editor/pretty-lines true
+                            :editor/depth-buttons true
                             :sketch {:text nil
                                      :data nil}}))
 
@@ -30,7 +31,52 @@
                                         (.setItem js/localStorage "sketchflow-v0-auto" new-value)
                                         (swap! app-state assoc-in [:sketch :render] render)))))
 
-(defn editor [pretty-lines {:keys [text data]}]
+
+(def ^:const +left-arrow+ "‹"#_"🢐")
+(def ^:const +right-arrow+ "›"#_"🢒")
+
+(defn indent-button [text line-number depth]
+  [:button {:on-click (fn [_]
+                        (let [[before rem] (split-at line-number (str/split text #"\n"))
+                              line (first rem)
+                              [children after] (split-with #(< depth (count (second (re-find #"^(\s+)" %)))) (rest rem) )
+                              res (str/join "\n"
+                                            (concat
+                                             before
+                                             [(str " " line)]
+                                             (map #(if (str/blank? %) % (str " " %)) children)
+                                             after))]
+                          (println res)
+                          (println before line children after)
+                          (set-editor-value! res)))}
+
+   +right-arrow+])
+
+(defn deindent-button [text line-number depth]
+  [:button {:on-click (fn [_]
+                        (let [[before rem] (split-at line-number (str/split text #"\n"))
+                              line (first rem)
+                              [children after] (split-with #(< depth (count (second (re-find #"^(\s+)" %)))) (rest rem) )
+                              res (str/join "\n"
+                                            (concat
+                                             before
+                                             [(subs line 1)]
+                                             (map #(if (str/blank? %) % (subs % 1)) children)
+                                             after))]
+                          (println res)
+                          (println before line children after)
+                          (set-editor-value! res)))}
+
+   +left-arrow+])
+
+(defn depth-control [text line-number depth]
+  [:div.line-depth-controls {:style {:left (str (max 0 (dec depth)) "ch")}}
+   (when (pos? depth)
+     (deindent-button text line-number depth))
+   (indent-button text line-number depth)])
+
+
+(defn editor [{:editor/keys [pretty-lines depth-buttons]} {:keys [text data]}]
   [:div.editor
    [:div.editor-controls
     [:div.control
@@ -46,10 +92,16 @@
      [:input {:type :checkbox :name "pretty"
               :checked (if pretty-lines "checked" false)
               :on-change (fn [e]
-                           (swap! app-state assoc :layout/pretty-lines (-> e .-target .-checked)))}]
-     [:label {:for "pretty"} "Pretty Lines"]]
+                           (swap! app-state assoc :editor/pretty-lines (-> e .-target .-checked)))}]
+     [:label {:for "pretty"} "Pretty"]]
+    [:div.control
+     [:input {:type :checkbox :name "depth"
+              :checked (if depth-buttons "checked" false)
+              :on-change (fn [e]
+                           (swap! app-state assoc :editor/depth-buttons (-> e .-target .-checked)))}]
+     [:label {:for "depth"} (str +left-arrow+ "/" +right-arrow+)]]]
 
-    #_[:div.control [:button "Save"]]]
+
    [:div.editor-area
     (when pretty-lines
       [:div.editor-overlay
@@ -67,22 +119,22 @@
                          [:div.line-content line]]
 
                         :else
-                        [:div.editor-overlay-line {:key i}
-                         [:div.line-depth (count (second (re-find #"^(\s+)" line)))]
-                         [:div.line-content line]]))
-                    (str/split text #"\n"))
-
-       ])
+                        (let [depth (count (second (re-find #"^(\s+)" line)))]
+                          [:div.editor-overlay-line {:key i}
+                           (if depth-buttons
+                             (depth-control text i depth)
+                             [:div.line-depth depth])
+                           [:div.line-content line]])))
+                    (str/split text #"\n"))])
     [:div.editor-textarea
-
      [:textarea {:value text
                  :spell-check "false"
                  :on-change (fn [e]
                               (doto e (.preventDefault) (.stopPropagation))
                               (let [new-value (-> e .-target .-value)]
-                                (set-editor-value! new-value)))}]]]
+                                (set-editor-value! new-value)))}]
 
-   ])
+     ]]])
 
 (defn file-manager [state]
   [:div "file manager"])
@@ -93,7 +145,7 @@
 (def tabs
   [{:id :editor
     :name "Editor"
-    :content #(editor (:layout/pretty-lines %) (:sketch %))}
+    :content #(editor % (:sketch %))}
    #_{:id :files
     :name "Files"
     :content file-manager}
