@@ -410,14 +410,23 @@ button:hover {
 
 #help .example-code {
     /*padding: 1em 0;*/
-    margin: 10px 50px;
+    margin: 10px 5%;
     border: 1px solid #788475;
 }
 .example-code code:nth-child(odd) {
     background-color: #f5f5f5;
 }
 
-#help code {
+#help p code {
+    font-family: 'Source Code Pro', monospace;
+    padding: 0px 2px;
+    color: darkgreen;
+    border: 1px solid #eee;
+    background-color: rgba(200,200,200,0.25);
+    border-radius: 5px;
+}
+
+#help .example code.ex {
     /*font-family: monospace;*/
     font-family: 'Source Code Pro', monospace;
     display: block;
@@ -425,12 +434,13 @@ button:hover {
     white-space: pre-wrap;
     padding: 0.2em 1em;
     min-height: 1.2em;
+    font-size: 0.8em;
 
 }
 #help .example {
 
     border-bottom: 1px solid #eee;
-    margin: 3em;
+    margin: 3em 2em;
     margin-bottom: 1.5em;
     padding-bottom: 1.5em;
 }

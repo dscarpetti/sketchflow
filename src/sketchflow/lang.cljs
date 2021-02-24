@@ -35,16 +35,29 @@
                    (str (gensym "node")))
                (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
 
-        line (str/replace line #"\#[^\s]+" "")
+        line (str/replace line #"\#[^\s]+\s*" "")
 
         raw-options (second (re-find #"\{\s*([^\{\}]+)\s*\}" line))
-
-
         [named-options options] (process-options named-options raw-options)
         ;;options (map #(-> % str/lower-case str/trim keyword) (str/split options #"\s"))
         ;;options (if (empty? options) nil (set options))
-
         line (str/replace line #"\{[^\{\}]*\}" "")
+
+
+
+        edge-label (second (re-find #"\<([^\<\>]+)\>" line))
+        [_ edge-type edge-label] (when edge-label (re-matches #"\s*([\|\-\.]?)(.*)" edge-label))
+        edge-type (condp = edge-type
+                    "." :dotted
+                    "-" :dashed
+                    "|" :solid
+                    nil)
+        edge-label (when edge-label (str/trim edge-label))
+
+        line (str/replace line #"\<[^\<\>]+\>" "")
+
+
+
 
         [_ indentation rest] (re-matches #"(\s*)(.*)" line)
 
@@ -60,6 +73,8 @@
                "?"
                (-> rest
                    (str/replace #"\"" "'")
+                   (str/replace #"<" "&lt;")
+                   (str/replace #">" "&gt;")
                    (str/replace #"\s*\|\s*" "\\n")))
 
         depth (count indentation)
@@ -67,17 +82,22 @@
         raw-options (when raw-options (first (str/split raw-options #"\s*:\s*")))
 
         existing-node (node-table id)
-        
+
         node (if existing-node
                (assoc existing-node
                       :reference true
-                      :depth depth)
+                      :depth depth
+                      :edge-type edge-type
+                      :edge-label edge-label
+                      )
                {:id id
                 :ref-id ref-id
                 :name name
                 :options options
                 :raw-options (when raw-options (seq (map #(str/trim (str/lower-case %)) (str/split (str/replace raw-options #":" "") #"\s+"))))
                 :port (when port-id [port-id port-name])
+                :edge-type edge-type
+                :edge-label edge-label
                 :depth depth})]
 
     [named-options
@@ -179,12 +199,24 @@
 
 (def ^:private spaces "                                                          ")
 
-(defn- node->string [s {:keys [depth port children name raw-options ref-id reference] :as node}]
+(defn- node->string [s {:keys [depth port children name raw-options ref-id reference edge-type edge-label] :as node}]
   ;;(println reference ref-id name)
-  (let [node-str (if reference
+  (let [edge (when (or edge-type edge-label)
+               (str " <"
+                    (case edge-type
+                      :dotted "."
+                      :dashed "-"
+                      :solid "|"
+                      nil)
+                    (when edge-type " ")
+                    edge-label
+                    ">"))
+        node-str (if reference
                    (str s
                         (subs spaces 0 depth)
-                        "#" ref-id "\n")
+                        "#" ref-id
+                        edge
+                        "\n")
                    (str s
                       (subs spaces 0 depth)
                       (when port
@@ -192,6 +224,8 @@
                       (str/replace name #"\\n" " | ")
                       (when ref-id
                         (str " #" ref-id))
+                      edge
+
                       (when raw-options
                         (str " { " (str/join " " raw-options) " }"))
                       "\n"))]

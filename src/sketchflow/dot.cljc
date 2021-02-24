@@ -77,17 +77,25 @@
 
                   node (when-not reference (str id " [label=\"" label  "\"" shape-str color-str "];"))
 
-                  edge (get-option edges options)
-                  edge-str (when edge
-                             (str " [ style=\""edge"\"]"))
-                  ;;edge-options (when (= type :wifi) " [ style=\"dotted\"]")
+                  default-edge-type  (get-option edges options)
 
-                  edges (reduce (fn [es {:keys [id port]}]
-                                  (if is-record
-                                    (let [port-id (or (first port) "___main___")]
-                                      (str es "\n" pid ":" port-id " -> " id edge-str";"))
-                                    (str es "\n" pid " -> " id edge-str ";")))
 
+
+
+                  edges (reduce (fn [es {:keys [id port edge-type edge-label]}]
+                                  (let [edge-type (get edges edge-type default-edge-type)
+                                        edge-str (cond
+                                                   (and edge-type edge-label)
+                                                   (str " [ label=\" "edge-label"\", style=\""edge-type"\" ]")
+                                                   edge-type
+                                                   (str "[ style=\""edge-type"\" ]")
+                                                   edge-label
+                                                   (str " [ label=\" "edge-label"\" ]"))]
+
+                                    (if is-record
+                                      (let [port-id (or (first port) "___main___")]
+                                        (str es "\n" pid ":" port-id " -> " id edge-str";"))
+                                      (str es "\n" pid " -> " id edge-str ";"))))
                                 ""
                                 children)]
               (draw-nodes (str s "\n" node "\n" edges "\n") options children)))
