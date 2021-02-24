@@ -1,12 +1,21 @@
-# sketchflow
+# SketchFlow
 
-FIXME: Write a one-line description of your library/project.
+[Check out the live app](https://dscarpetti.github.io/sketchflow/)
+
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+SketchFlow is an experimental DSL for graph drawing. It is intended to avoid boilerplate and allow quick and easy text specification of tree and graph structures. The current implementation uses graphviz for graph drawing.
+
+## Help
+
+View the 'Help' tab in the running app for usage instructions
 
 ## Development
+
+Developed using [figwheel-main](https://github.com/bhauman/figwheel-main)
+
+---
 
 To get an interactive development environment run:
 
@@ -32,6 +41,6 @@ To create a production build run:
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2021 David Scarpetti
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
