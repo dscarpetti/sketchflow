@@ -64,8 +64,7 @@
                         (re-find #"^\s*[\{\!]" line)
                         [:div.editor-overlay-line {:key i}
                          [:div.line-depth "*"]
-                         [:div.line-content "foo "]]
-
+                         [:div.line-content line]]
 
                         :else
                         [:div.editor-overlay-line {:key i}
