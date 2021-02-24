@@ -14,6 +14,7 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (r/atom {:layout/drawer-open true
+                            :layout/pretty-lines true
                             :sketch {:text nil
                                      :data nil}}))
 
@@ -29,28 +30,51 @@
                                         (.setItem js/localStorage "sketchflow-v0-auto" new-value)
                                         (swap! app-state assoc-in [:sketch :render] render)))))
 
-(defn editor [{:keys [text data]}]
+(defn editor [pretty-lines {:keys [text data]}]
   [:div.editor
    [:div.editor-controls
-    [:div.control [:button {:on-click (fn [e]
-                                        (try
-                                          (do
-                                            (println (lang/->string data))
-                                            (swap! app-state assoc-in [:sketch :text] (lang/->string data)))
-                                          (catch :default e
-                                            (println e))))}
-
-
-
+    [:div.control
+     [:button {:on-click (fn [e]
+                           (try
+                             (do
+                               (println (lang/->string data))
+                               (swap! app-state assoc-in [:sketch :text] (lang/->string data)))
+                             (catch :default e
+                               (println e))))}
                    "Format"]]
+    [:div.control
+     [:input {:type :checkbox :name "pretty"
+              :checked (if pretty-lines "checked" false)
+              :on-change (fn [e]
+                           (swap! app-state assoc :layout/pretty-lines (-> e .-target .-checked)))}]
+     [:label {:for "pretty"} "Pretty Lines"]]
+
     #_[:div.control [:button "Save"]]]
-   [:div.editor-textarea
-    [:textarea {:value text
-                :spell-check "false"
-                :on-change (fn [e]
-                             (doto e (.preventDefault) (.stopPropagation))
-                             (let [new-value (-> e .-target .-value)]
-                               (set-editor-value! new-value)))}]]])
+   [:div.editor-area
+    (when pretty-lines
+      [:div.editor-overlay
+       #_(map #(vector :div.editor-line (if (str/blank? %) " " %)) (str/split text #"\n"))
+       (map-indexed (fn [i line]
+                      (if (str/blank? line)
+                        [:div.editor-overlay-line {:key i}
+                         [:div.line-depth]
+                         [:div.line-content " "]]
+                        [:div.editor-overlay-line {:key i}
+                         [:div.line-depth (count (second (re-find #"^(\s+)" line)))]
+                         [:div.line-content line]]))
+                    (str/split text #"\n"))
+
+       ])
+    [:div.editor-textarea
+
+     [:textarea {:value text
+                 :spell-check "false"
+                 :on-change (fn [e]
+                              (doto e (.preventDefault) (.stopPropagation))
+                              (let [new-value (-> e .-target .-value)]
+                                (set-editor-value! new-value)))}]]]
+
+   ])
 
 (defn file-manager [state]
   [:div "file manager"])
@@ -58,11 +82,10 @@
 (defn help [state]
   help/rendered-help)
 
-
 (def tabs
   [{:id :editor
     :name "Editor"
-    :content #(editor (:sketch %))}
+    :content #(editor (:layout/pretty-lines %) (:sketch %))}
    #_{:id :files
     :name "Files"
     :content file-manager}
@@ -161,22 +184,23 @@
                        :max-height "50vh"}}]])]))
 
 (def default-text
-  "!horizontal
+"!horizontal
 
 SketchFlow
  Features
   Style Nodes { red box dashed }
-    And Edges
-    And Children { purple! hex! }
-      Inherit Styles
-      With !
+   And Edges
+   And Children { purple! hex! }
+    Inherit Styles
+    With !
   Use IDs #node-id
    For Complex Structure
-     #node-id
+    #node-id
   Create Ports
-    1. X
-    2. Y
-    3. Z")
+   1. X
+   2. Y
+   3. Z
+")
 
 (defn render []
   (rdom/render [shell] (gdom/getElement "app"))
