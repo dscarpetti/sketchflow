@@ -24,11 +24,11 @@
                               merge {:data data
                                      :text new-value
                                      :dot new-dot}))
-    
+
     (dotsvg/render-dot-string new-dot (fn [{:keys [status svg-uri error-message] :as render}]
                                         (.setItem js/localStorage "sketchflow-v0-auto" new-value)
                                         (swap! app-state assoc-in [:sketch :render] render)))))
-    
+
 (defn editor [{:keys [text data]}]
   [:div.editor
    [:div.editor-controls
@@ -40,8 +40,8 @@
                                           (catch :default e
                                             (println e))))}
 
-                                          
-                   
+
+
                    "Format"]]
     #_[:div.control [:button "Save"]]]
    [:div.editor-textarea
@@ -51,7 +51,7 @@
                              (doto e (.preventDefault) (.stopPropagation))
                              (let [new-value (-> e .-target .-value)]
                                (set-editor-value! new-value)))}]]])
-   
+
 (defn file-manager [state]
   [:div "file manager"])
 
@@ -122,7 +122,7 @@
                                        (or (.-clientWidth (.-documentElement js/document)) 0)
                                        (or (.-innerWidth js/window) 0)))
                         (close-drawer!))
-                                     
+
            :style {:position :absolute
                    :top "10px"
                    :bottom "10px"
@@ -140,8 +140,8 @@
             (drawer state)
             (workspace state))
 
-            
-            
+
+
     #_[:div
      (editor (:sketch state))
      [:textarea {:disabled true
@@ -160,10 +160,30 @@
                :style {:max-width "100%"
                        :max-height "50vh"}}]])]))
 
+(def default-text
+  "!horizontal
+
+SketchFlow
+ Features
+  Style Nodes { red box dashed }
+    And Edges
+    And Children { purple! hex! }
+      Inherit Styles
+      With !
+  Use IDs #node-id
+   For Complex Structure
+     #node-id
+  Create Ports
+    1. X
+    2. Y
+    3. Z")
+
 (defn render []
   (rdom/render [shell] (gdom/getElement "app"))
-  (let [new-value (or (-> @app-state :sketch :text) (.getItem js/localStorage "sketchflow-v0-auto") "")]
-   (set-editor-value! new-value)))
+  (let [text (or (-> @app-state :sketch :text) (.getItem js/localStorage "sketchflow-v0-auto"))
+        text (if (str/blank? text) default-text text)]
+
+   (set-editor-value! text)))
 
 
 
