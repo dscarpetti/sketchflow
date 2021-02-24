@@ -55,10 +55,19 @@
       [:div.editor-overlay
        #_(map #(vector :div.editor-line (if (str/blank? %) " " %)) (str/split text #"\n"))
        (map-indexed (fn [i line]
-                      (if (str/blank? line)
+                      (cond
+                        (str/blank? line)
                         [:div.editor-overlay-line {:key i}
                          [:div.line-depth]
                          [:div.line-content " "]]
+
+                        (re-find #"^\s*[\{\!]" line)
+                        [:div.editor-overlay-line {:key i}
+                         [:div.line-depth "*"]
+                         [:div.line-content "foo "]]
+
+
+                        :else
                         [:div.editor-overlay-line {:key i}
                          [:div.line-depth (count (second (re-find #"^(\s+)" line)))]
                          [:div.line-content line]]))
