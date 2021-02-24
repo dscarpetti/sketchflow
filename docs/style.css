@@ -476,3 +476,21 @@ button:hover {
     font-size: 0.9em;
     font-style: italic;
 }
+
+/* copyright */
+#copyright {
+    color: #333;
+    font-family: sans-serif;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 3px 5px;
+    font-size: 10pt;
+}
+#copyright a {
+    color: #555;
+    text-decoration: none;
+}
+#copyright a:hover {
+    text-decoration: underline;
+}
