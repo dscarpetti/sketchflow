@@ -85,10 +85,15 @@
 
         node (if existing-node
                (assoc existing-node
+                      :name (or (:name existing-node) name)
                       :reference true
                       :depth depth
                       :edge-type edge-type
                       :edge-label edge-label
+
+                      :options options
+                      :raw-options (when raw-options (seq (map #(str/trim (str/lower-case %)) (str/split (str/replace raw-options #":" "") #"\s+"))))
+                      :port (when port-id [port-id port-name])
                       )
                {:id id
                 :ref-id ref-id
@@ -135,6 +140,38 @@
                         :children children
                         :ports (if (empty? ports) nil (into (sorted-set) ports)))]
       (into [device] (create-tree named-options parent-depth parent-options rest)))))
+
+(defn- concat-if-present [x y]
+  (if x
+    (concat x y)
+    y))
+
+(defn- finalize-tree-helper [by-id nodes]
+  (reduce (fn [by-id {:keys [id name ports options raw-options children] :as node}]
+            (let [by-id (assoc by-id id
+                               (if-let [existing-node (by-id id)]
+                                 (-> existing-node
+                                     (assoc :name (or (:name existing-node) name))
+                                     (update :options concat-if-present options)
+                                     (update :raw-options concat-if-present raw-options)
+                                     (update :ports (fn [old-ports]
+                                                      (if old-ports
+                                                        (into old-ports ports)
+                                                        ports))))
+                                 {:name name
+                                  :options options
+                                  :raw-options raw-options
+                                  :ports ports}))]
+              (finalize-tree-helper by-id children)))
+          by-id nodes))
+
+(defn- finalize-tree [by-id nodes]
+  (reduce (fn [final {:keys [id children] :as node}]
+            (let [final-children (finalize-tree by-id (:children node))]
+              (conj final (merge node (assoc (by-id id) :children final-children)))))
+          [] nodes))
+
+
 
 (defn- expand-options-helper [named-options seen options]
   (reduce (fn [[seen res] option]
@@ -189,13 +226,18 @@
                                           (parse-line named-options id-table lines line))
                                         [initial-named-options {} []]
                                         node-lines)
-        named-options (expand-options named-options)]
+        named-options (expand-options named-options)
+
+
+        raw-nodes (create-tree named-options -1 nil lines)
+        by-id (finalize-tree-helper {} raw-nodes)
+        nodes (finalize-tree by-id raw-nodes)]
 
     {:config config-flags
      :named-options named-options ;initial-named-options
      ;;:options named-options
      :default-options default-options
-     :nodes (create-tree named-options -1 nil lines)}))
+     :nodes nodes}))
 
 (def ^:private spaces "                                                          ")
 
