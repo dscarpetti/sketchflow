@@ -312,8 +312,9 @@ SketchFlow
    A <like this { reverse }>
    B <or this { dashed }>
    C <or even this { dotted }>
-   D <(redundantly solid) { both }>
+   D <& both ways { both }>
 ")
+
 
 (defn render []
   (rdom/render [shell] (gdom/getElement "app"))
