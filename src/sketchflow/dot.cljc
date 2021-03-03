@@ -167,7 +167,7 @@
         title (when title (str "label=\""title"\"; labelloc=bottom; labeljust=center;\n\n"))
 
         ]
-    (str "digraph Graph {\n\n"
+    (str "digraph SketchFlow {\n\n"
          title
          rankdir
          "graph [nodesep=\""+nodesep+"\", ranksep=\""+ranksep+"\"" spline-str  "]\n"
