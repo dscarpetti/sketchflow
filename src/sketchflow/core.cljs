@@ -14,6 +14,7 @@
 (defonce app-state (r/atom {:layout/drawer-open true
                             :editor/pretty-lines true
                             :editor/depth-buttons true
+                            :editor/rainbow-buttons true
                             :sketch {:text nil
                                      :data nil}}))
 
@@ -67,8 +68,9 @@
 
    +left-arrow+])
 
-(defn depth-control [text line-number depth]
-  [:div.line-depth-controls {:style {:left (str (max 0 (dec depth)) "ch")}}
+(defn depth-control [text line-number depth rainbow]
+  [:div.line-depth-controls {:class (when rainbow (str "depth" depth))
+                             :style {:left (str (max 0 (dec depth)) "ch")}}
    (when (pos? depth)
      (deindent-button text line-number depth))
    (indent-button text line-number depth)])
@@ -108,7 +110,7 @@
                                (let [new-value (-> e .-target .-value)]
                                  (set-editor-value! new-value)))}])})))
 
-(defn editor [{:editor/keys [pretty-lines depth-buttons]} {:keys [text data]}]
+(defn editor [{:editor/keys [pretty-lines depth-buttons rainbow-buttons]} {:keys [text data]}]
   [:div.editor
    [:div.editor-controls
     [:div.control
@@ -128,10 +130,21 @@
      [:label {:for "pretty"} "Pretty"]]
     [:div.control
      [:input {:type :checkbox :name "depth"
+              :disabled (not pretty-lines)
               :checked (if depth-buttons "checked" false)
               :on-change (fn [e]
                            (swap! app-state assoc :editor/depth-buttons (-> e .-target .-checked)))}]
-     [:label {:for "depth"} (str +left-arrow+ "/" +right-arrow+)]]]
+     [:label {:for "depth"} (str +left-arrow+ "/" +right-arrow+)]]
+    [:div.control
+     [:input {:type :checkbox :name "rainbow"
+              :disabled (not (and pretty-lines depth-buttons))
+              :checked (if rainbow-buttons "checked" false)
+              :on-change (fn [e]
+                             (swap! app-state assoc :editor/rainbow-buttons (-> e .-target .-checked)))}]
+     [:label {:for "rainbow"} "🌈"]]
+
+
+    ]
 
 
    [:div.editor-area
@@ -154,7 +167,7 @@
                         (let [depth (count (second (re-find #"^(\s+)" line)))]
                           [:div.editor-overlay-line {:key i}
                            (if depth-buttons
-                             (depth-control text i depth)
+                             (depth-control text i depth rainbow-buttons)
                              [:div.line-depth depth])
                            [:div.line-content line]])))
                     (str/split text #"\n"))])

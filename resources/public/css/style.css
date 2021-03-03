@@ -233,9 +233,12 @@ button:hover {
 
 }
 .control {
+    padding-left: 5px;
+    padding-right: 5px;
     flex: 0 1 auto;
     align-self: auto;
     text-align: center;
+
 }
 
 .editor-area {
@@ -311,6 +314,91 @@ button:hover {
    top: 0;
    bottom: 0;
 }
+
+.line-depth-controls.depth1 button{
+    color: purple;
+}
+.line-depth-controls.depth2 button {
+    color: blue;
+}
+
+.line-depth-controls.depth3 button {
+    color: green;
+}
+
+.line-depth-controls.depth4 button {
+    color: gold;
+}
+
+.line-depth-controls.depth5 button {
+    color: orange;
+}
+
+.line-depth-controls.depth6 button {
+    color: red;
+}
+
+.line-depth-controls.depth7 button {
+    color: brown;
+}
+
+.line-depth-controls.depth9 button {
+    color: purple;
+}
+.line-depth-controls.depth10 button {
+    color: blue;
+}
+
+.line-depth-controls.depth11 button {
+    color: green;
+}
+
+.line-depth-controls.depth12 button {
+    color: gold;
+}
+
+.line-depth-controls.depth13 button {
+    color: orange;
+}
+
+.line-depth-controls.depth14 button {
+    color: red;
+}
+
+.line-depth-controls.depth15 button {
+    color: brown;
+}
+
+.line-depth-controls.depth17 button {
+    color: purple;
+}
+.line-depth-controls.depth18 button {
+    color: blue;
+}
+
+.line-depth-controls.depth19 button {
+    color: green;
+}
+
+.line-depth-controls.depth20 button {
+    color: gold;
+}
+
+.line-depth-controls.depth21 button {
+    color: orange;
+}
+
+.line-depth-controls.depth22 button {
+    color: red;
+}
+
+.line-depth-controls.depth23 button {
+    color: brown;
+}
+
+
+
+
 /*.line-depth-controls button {
     margin: 1px;
     padding: 0 0px;
