@@ -139,7 +139,7 @@
    :curve "curve"})
 
 (defn dot-string [_;;{:keys [direction nodesep ranksep splines] :or {nodesep +nodesep+ ranksep +ranksep+}}
-                  {:keys [nodes default-options config]}]
+                  {:keys [title nodes default-options config]}]
   ;;(pprint (parse-graph-string new-value))
   (let [rankdir (when (or (contains? config :horizontal)
                           (contains? config :hz))
@@ -164,10 +164,11 @@
                    color (str "node [" color-str "];\n")
                    shape (str "node [" shape-str "];\n"))
 
-
+        title (when title (str "label=\""title"\"; labelloc=bottom; labeljust=center;\n"))
 
         ]
     (str "digraph Network {\n"
+         title
          rankdir
          "graph [nodesep=\""+nodesep+"\", ranksep=\""+ranksep+"\"" spline-str  "]\n"
          node-str

@@ -278,7 +278,8 @@
                        :max-height "50vh"}}]])]))
 
 (def default-text
-"!horizontal
+"!title SketchFlow Feature Demo
+!horizontal
 
 SketchFlow
  Features

@@ -241,7 +241,15 @@
       :else :node)))
 
 (defn- parse-config [lines]
-  (into (sorted-set) (map #(-> % (subs 1) str/trim str/lower-case keyword) lines)))
+  (reduce (fn [[title config-set] line]
+            (let [line (str/trim (subs (str/trim line) 1))
+                  lcase (str/lower-case line)]
+              (if (str/starts-with? lcase "title")
+                [(str/trim (subs line 5)) config-set]
+                [title (conj config-set (keyword lcase))])))
+          [nil (sorted-set)]
+          lines))
+;;(into (sorted-set) (map #(-> % (subs 1) str/trim str/lower-case keyword) lines)))
 
 (defn parse-nodes [s]
   (let [lines (group-by
@@ -251,7 +259,7 @@
 
         option-lines (lines :option)
         node-lines (lines :node)
-        config-flags (parse-config (lines :config))
+        [title config-flags] (parse-config (lines :config))
 
         default-options (map #(-> % str/lower-case str/trim keyword)
                              (remove str/blank? (str/split (str/join " "
@@ -274,7 +282,9 @@
         by-id (finalize-tree-helper {} raw-nodes)
         nodes (finalize-tree by-id raw-nodes)]
 
-    {:config config-flags
+    {:raw-title title
+     :title (clean-label title)
+     :config config-flags
      :named-options named-options ;initial-named-options
      ;;:options named-options
      :default-options default-options
@@ -329,8 +339,9 @@
 
 
 
-(defn ->string [{:keys [config options default-options named-options nodes]}]
-  (let [flags (str/join "\n" (map #(str "!" (name %)) config))
+(defn ->string [{:keys [raw-title config options default-options named-options nodes]}]
+  (let [title (when raw-title (str "!title " raw-title "\n"))
+        flags (str/join "\n" (map #(str "!" (name %)) config))
         named-options (str/join
                        "\n"
                        (remove nil?
@@ -341,6 +352,7 @@
                                              " }")))
                                     named-options)))]
     (str
+     title
      flags
      (when-not (str/blank? flags) "\n\n")
      (when-not (empty? default-options)
