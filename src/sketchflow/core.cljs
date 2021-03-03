@@ -278,7 +278,7 @@
                        :max-height "50vh"}}]])]))
 
 (def default-text
-  "!horizontal
+"!horizontal
 
 SketchFlow
  Features
@@ -294,29 +294,11 @@ SketchFlow
    1. X
    2. Y
    3. Z
-  Label Edges
-   A <like this>
-   B <- or this>
-   C <. or even this>
-   D <| (redundantly solid)>
-")
-
-#_("!horizontal
-
-SketchFlow
- Features
-  Style Nodes { red box dashed }
-   And Edges
-   And Children { purple! hex! }
-    Inherit Styles
-    With !
-  Use IDs #node-id
-   For Complex Structure
-    #node-id
-  Create Ports
-   1. X
-   2. Y
-   3. Z
+  Adjust Edges
+   A <like this { reverse }>
+   B <or this { dashed }>
+   C <or even this { dotted }>
+   D <(redundantly solid) { both }>
 ")
 
 (defn render []
