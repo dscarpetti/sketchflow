@@ -28,6 +28,29 @@
       [new-named-options processed-options])
     [named-options nil]))
 
+(defn- clean-label [s]
+  (when-not (str/blank? s)
+    (-> s
+        (str/trim)
+        (str/replace #"&" "&amp;")
+        (str/replace #"\"" "&quot;")
+        (str/replace #"\\?<" "&lt;")
+        (str/replace #"\\?>" "&gt;")
+        (str/replace #"'" "&#39;")
+        (str/replace #"\s*\|\s*" "\\n"))))
+
+(defn- unclean-label [s]
+  (when-not (str/blank? s)
+    (-> s
+        (str/trim)
+        (str/replace #"&amp;" "&")
+        (str/replace #"&quot;" "\"")
+        (str/replace #"&lt;" "\\<")
+        (str/replace #"&gt;" "\\>")
+        (str/replace #"&#39" "'")
+        (str/replace #"\n" " | "))))
+
+
 (defn- parse-line [named-options node-table lines line]
   (let [ref-id (second (re-find #"\#([^\s]+)" line))
         ref-id (when ref-id (-> ref-id str/lower-case))
@@ -35,28 +58,41 @@
                    (str (gensym "node")))
                (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
 
+
         line (str/replace line #"\#[^\s]+\s*" "")
+
+        ;; Edge
+
+        edge-label (second (re-find #"\<([^\<\>]+)\>" line))
+
+        raw-edge-options (when edge-label (second (re-find #"\{\s*([^\{\}]+)\s*\}" edge-label)))
+        [named-options edge-options] (if raw-edge-options
+                                       (process-options named-options raw-edge-options)
+                                       [named-options])
+        edge-options (when edge-options (map :name edge-options))
+        ;;options (map #(-> % str/lower-case str/trim keyword) (str/split options #"\s"))
+        ;;options (if (empty? options) nil (set options))
+        edge-label (when edge-label (str/trim (str/replace edge-label #"\{[^\{\}]*\}" "")))
+
+        ;; [_ edge-type edge-label] (when edge-label (re-matches #"\s*([\|\-\.]?)(.*)" edge-label))
+        ;; edge-type (condp = edge-type
+        ;;             "." :dotted
+        ;;             "-" :dashed
+        ;;             "|" :solid
+        ;;             nil)
+        ;; edge-label (when edge-label (str/trim edge-label))
+        edge-label (clean-label edge-label)
+
+        line (str/replace line #"\<[^\<\>]+\>" "")
+
+
+        ;; Options
 
         raw-options (second (re-find #"\{\s*([^\{\}]+)\s*\}" line))
         [named-options options] (process-options named-options raw-options)
         ;;options (map #(-> % str/lower-case str/trim keyword) (str/split options #"\s"))
         ;;options (if (empty? options) nil (set options))
         line (str/replace line #"\{[^\{\}]*\}" "")
-
-
-
-        edge-label (second (re-find #"\<([^\<\>]+)\>" line))
-        [_ edge-type edge-label] (when edge-label (re-matches #"\s*([\|\-\.]?)(.*)" edge-label))
-        edge-type (condp = edge-type
-                    "." :dotted
-                    "-" :dashed
-                    "|" :solid
-                    nil)
-        edge-label (when edge-label (str/trim edge-label))
-
-        line (str/replace line #"\<[^\<\>]+\>" "")
-
-
 
 
         [_ indentation rest] (re-matches #"(\s*)(.*)" line)
@@ -69,7 +105,8 @@
         port-id (when port-name
                   (str "p_" (str/replace port-name #"[/\+\*\&\s\-\[\]\)\(]" "_")))
 
-        name (if (str/blank? rest)
+        name (clean-label rest)
+        #_(if (str/blank? rest)
                nil
                (-> rest
                    (str/replace #"\"" "'")
@@ -88,7 +125,9 @@
                       :name (or (:name existing-node) name)
                       :reference true
                       :depth depth
-                      :edge-type edge-type
+                      ;:edge-type edge-type
+                      :edge-options edge-options
+                      :raw-edge-options raw-edge-options
                       :edge-label edge-label
 
                       :options options
@@ -101,7 +140,9 @@
                 :options options
                 :raw-options (when raw-options (seq (map #(str/trim (str/lower-case %)) (str/split (str/replace raw-options #":" "") #"\s+"))))
                 :port (when port-id [port-id port-name])
-                :edge-type edge-type
+                ;;:edge-type edge-type
+                :edge-options edge-options
+                :raw-edge-options raw-edge-options
                 :edge-label edge-label
                 :depth depth})]
 
@@ -241,18 +282,24 @@
 
 (def ^:private spaces "                                                          ")
 
-(defn- node->string [s {:keys [depth port children name raw-options ref-id reference edge-type edge-label] :as node}]
+(defn- node->string [s {:keys [depth port children name raw-options ref-id reference edge-options edge-label] :as node}]
   ;;(println reference ref-id name)
-  (let [edge (when (or edge-type edge-label)
+  (let [edge (when (or edge-options edge-label)
                (str " <"
-                    (case edge-type
+                    #_(case edge-type
                       :dotted "."
                       :dashed "-"
                       :solid "|"
                       nil)
-                    (when edge-type " ")
-                    edge-label
+                    #_(when edge-type " ")
+                    (unclean-label edge-label)
+
+                    (when (and edge-label edge-options) " ")
+                    (when edge-options "{ ")
+                    (when edge-options (str/join " " (map clojure.core/name edge-options)))
+                    (when edge-options " }")
                     ">"))
+
         node-str (if reference
                    (str s
                         (subs spaces 0 depth)
@@ -263,7 +310,8 @@
                       (subs spaces 0 depth)
                       (when port
                         (str (second port) ". "))
-                      (str/replace name #"\\n" " | ")
+                      (unclean-label name)
+                      ;;(str/replace name #"\\n" " | ")
                       (when ref-id
                         (str " #" ref-id))
                       edge

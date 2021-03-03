@@ -25,12 +25,27 @@
    :circle "circle"})
 
 
-(def edges
+(def edge-styles
   {:dot "dotted"
    :dotted "dotted"
    :dash "dashed"
    :dashed "dashed"
    :solid "solid"})
+
+(def edge-directions
+  {:reverse "back"
+   :back "back"
+   :backward "backward"
+   :forward "forward"
+   :fore "forward"
+   :double "both"
+   :both "both"})
+
+(def edge-strengths
+  {:weak "0"
+   :normal "1"
+   :strong "10"
+   :ultra "20"})
 
 
 (defn get-option [option-map option-seq]
@@ -77,18 +92,29 @@
 
                   node (when-not reference (str id " [label=\"" label  "\"" shape-str color-str "];"))
 
-                  default-edge-type  (get-option edges options)
+                  ;;;default-edge-type  (get-option edge-styles options)
 
 
 
 
-                  edges (reduce (fn [es {:keys [id port edge-type edge-label]}]
-                                  (let [edge-type (get edges edge-type default-edge-type)
-                                        edge-str (cond
-                                                   (and edge-type edge-label)
-                                                   (str " [ label=\" "edge-label"\", style=\""edge-type"\" ]")
-                                                   edge-type
-                                                   (str "[ style=\""edge-type"\" ]")
+                  edges (reduce (fn [es {:keys [id port edge-options edge-label]}]
+                                  (let [edge-style (get-option edge-styles (concat edge-options options))
+                                        edge-direction (get-option edge-directions (concat edge-options options))
+                                        edge-strength (get-option edge-strengths (concat edge-options options))
+
+                                        label (when edge-label (str " label=\"" edge-label "\""))
+                                        style (when edge-style (str " style=\"" edge-style "\""))
+                                        direction (when edge-direction (str " dir=\"" edge-direction "\""))
+                                        strength (when edge-strength (str " weight=" edge-strength))
+                                        components (remove nil? [label style direction strength])
+
+                                        edge-str (when (seq components)
+                                                   (str "[" (str/join "," components) "]"))
+                                        #_(cond
+                                                   (and edge-style edge-label)
+                                                   (str " [ label=\" "edge-label"\", style=\""edge-style"\", dir=both ]")
+                                                   edge-style
+                                                   (str "[ style=\""edge-style"\" ]")
                                                    edge-label
                                                    (str " [ label=\" "edge-label"\" ]"))]
 
@@ -129,9 +155,9 @@
         shape-str (when shape
                     (str "shape=\"" shape "\""))
 
-        edge (get-option edges default-options)
-        edge-str (when edge
-                   (str "edge [ style=\""edge"\"]\n"))
+        edge-style (get-option edge-styles default-options)
+        edge-str (when edge-style
+                   (str "edge [ style=\""edge-style"\"]\n"))
 
         node-str (cond
                    (and color shape) (str "node [" color-str "," shape-str  "];\n")

@@ -468,7 +468,12 @@ button:hover {
 #help .list li:nth-child(odd){
     background-color: #eee;
 }
-
+#help .list .bullet-note {
+    display: block;
+    font-size: 0.8em;
+    color: #999;
+    font-style: italic;
+}
 
 
 #help .note {
