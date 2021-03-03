@@ -56,10 +56,11 @@
         ref-id (when ref-id (-> ref-id str/lower-case))
 
         id (if ref-id
-             (str "n_" (-> ref-id
+             (str "id_" (-> ref-id
                            str/lower-case
-                           (str/replace #"[^a-zA-Z0-9_\-]" "")))
-             (str "n_" (count node-table)))
+                           (str/replace #"-" "_")
+                           (str/replace #"[^a-zA-Z0-9_]" "")))
+             (str "node_" (count node-table)))
         ;; id (-> (or ref-id
         ;;            (str (gensym "node")))
         ;;        (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
