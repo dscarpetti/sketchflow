@@ -326,7 +326,7 @@ SketchFlow
   Use IDs #node-id
    For Complex Structure
     #node-id
-  Create Ports
+  Create Ports <4. Inbound Port>
    1. X
    2. Y
    3. Z
