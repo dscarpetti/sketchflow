@@ -11,8 +11,6 @@
    [goog.dom :as gdom]))
 
 
-
-;; define your app data so that it doesn't get over-written on reload
 (defonce app-state (r/atom {:layout/drawer-open true
                             :editor/pretty-lines true
                             :editor/depth-buttons true
@@ -46,8 +44,8 @@
                                              [(str " " line)]
                                              (map #(if (str/blank? %) % (str " " %)) children)
                                              after))]
-                          (println res)
-                          (println before line children after)
+                          #_(println res)
+                          #_(println before line children after)
                           (set-editor-value! res)))}
 
    +right-arrow+])
@@ -63,8 +61,8 @@
                                              [(subs line 1)]
                                              (map #(if (str/blank? %) % (subs % 1)) children)
                                              after))]
-                          (println res)
-                          (println before line children after)
+                          #_(println res)
+                          #_(println before line children after)
                           (set-editor-value! res)))}
 
    +left-arrow+])
@@ -75,6 +73,40 @@
      (deindent-button text line-number depth))
    (indent-button text line-number depth)])
 
+(defn smart-text-editor [text]
+  (let [set-point-at (atom nil)
+        el (atom nil)]
+  (r/create-class
+   {:component-did-update (fn [& args]
+                            (when-let [pos @set-point-at]
+                              (reset! set-point-at nil)
+                              (set! (.-selectionStart @el) pos)
+                              (set! (.-selectionEnd @el) pos)))
+    :reagent-render
+    (fn [text]
+      [:textarea {:value text
+                  :ref #(reset! el %)
+                  :spell-check "false"
+                  :on-key-press (fn [e]
+                                  (when (and (= (.-key e) "Enter")
+                                             (not (.-shiftKey e)))
+                                    (let [target (.-target e)
+                                          sel-start (.-selectionStart target)
+                                          sel-end (.-selectionEnd target)
+                                          val (.-value target)]
+                                      (when (= sel-start sel-end)
+                                        (doto e (.preventDefault) (.stopPropagation))
+                                        (let [part1 (subs val 0 sel-start)
+                                              part2 (subs val sel-start)
+                                              part1-last-line (or (last (str/split part1 #"\n")) "")
+                                              space-count (count (second (re-find #"^(\s*)" part1-last-line )))
+                                              spaces (str/join (repeat space-count " "))]
+                                          (reset! set-point-at (+ (count part1) 1 space-count))
+                                          (set-editor-value! (str part1 "\n" spaces part2)))))))
+                  :on-change (fn [e]
+                               (doto e (.preventDefault) (.stopPropagation))
+                               (let [new-value (-> e .-target .-value)]
+                                 (set-editor-value! new-value)))}])})))
 
 (defn editor [{:editor/keys [pretty-lines depth-buttons]} {:keys [text data]}]
   [:div.editor
@@ -83,7 +115,7 @@
      [:button {:on-click (fn [e]
                            (try
                              (do
-                               (println (lang/->string data))
+                               ;;(println (lang/->string data))
                                (swap! app-state assoc-in [:sketch :text] (lang/->string data)))
                              (catch :default e
                                (println e))))}
@@ -127,12 +159,14 @@
                            [:div.line-content line]])))
                     (str/split text #"\n"))])
     [:div.editor-textarea
-     [:textarea {:value text
+     (if pretty-lines
+       [smart-text-editor text]
+       [:textarea {:value text
                  :spell-check "false"
                  :on-change (fn [e]
                               (doto e (.preventDefault) (.stopPropagation))
                               (let [new-value (-> e .-target .-value)]
-                                (set-editor-value! new-value)))}]
+                                (set-editor-value! new-value)))}])
 
      ]]])
 
