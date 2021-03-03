@@ -149,6 +149,7 @@
                       ;;:raw-edge-options raw-edge-options
                       :edge-label edge-label
 
+                      :edge-port-name edge-port-name
                       :edge-port-id edge-port-id
                       :edge-ports (if edge-port-id
                                     (conj (:edge-ports existing-node) [edge-port-id edge-port-name])
@@ -170,6 +171,7 @@
                 ;;:raw-edge-options raw-edge-options
                 :edge-label edge-label
                 :edge-port-id edge-port-id
+                :edge-port-name edge-port-name
                 :edge-ports (when edge-port-id [[edge-port-id edge-port-name]])
 
                 :depth depth})]
@@ -321,7 +323,8 @@
 
 (def ^:private spaces "                                                          ")
 
-(defn- node->string [s {:keys [depth port children name raw-options ref-id reference edge-options edge-label] :as node}]
+(defn- node->string [s {:keys [depth port children name raw-options ref-id reference edge-options edge-label
+                               edge-port-id edge-port-name] :as node}]
   ;;(println reference ref-id name)
   (let [edge (when (or edge-options edge-label)
                (str " <"
@@ -331,6 +334,9 @@
                       :solid "|"
                       nil)
                     #_(when edge-type " ")
+                    (when edge-port-name
+                      (str edge-port-name ". "))
+
                     (unclean-label edge-label)
 
                     (when (and edge-label edge-options) " ")
