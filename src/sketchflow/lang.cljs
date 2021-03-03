@@ -55,6 +55,7 @@
   (let [ref-id (second (re-find #"\#([^\s]+)" line))
         ref-id (when ref-id (-> ref-id str/lower-case))
         id (-> (or ref-id
+                   (str "node" (count node-table))
                    (str (gensym "node")))
                (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
 
