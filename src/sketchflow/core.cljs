@@ -127,7 +127,7 @@
               :checked (if pretty-lines "checked" false)
               :on-change (fn [e]
                            (swap! app-state assoc :editor/pretty-lines (-> e .-target .-checked)))}]
-     [:label {:for "pretty"} "Pretty"]]
+     [:label {:for "pretty"} "👓" #_"Pretty"]]
     [:div.control
      [:input {:type :checkbox :name "depth"
               :disabled (not pretty-lines)
