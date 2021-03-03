@@ -570,6 +570,59 @@ button:hover {
     font-style: italic;
 }
 
+/* formats */
+
+.alt-formats {
+    /*display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: stretch;*/
+
+}
+
+.alt-formats section {
+    margin: 1em 0em;
+    border-bottom: 1px solid #eee;
+    /*order: 0;
+    flex: 0 1 auto;
+    align-self: auto;*/
+}
+
+.alt-formats .svg-display svg {
+    width: 100%;
+    height: auto;
+}
+
+.alt-formats h2 {
+    text-align: center;
+    background-color: #8DAA91;
+    color: white;
+    font-weight: normal;
+}
+.alt-formats .graphviz {
+    /*flex: 1 1 auto;*/
+}
+.graphviz .dotstring {
+    white-space: pre-wrap;
+    padding: 1ch;
+    font-size: 0.8em;
+}
+
+.alt-formats .graphviz textarea{
+    resize: none;
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 1ch;
+}
+.alt-formats .graphviz textarea:focus{
+    outline: none;
+    box-shadow: inset 0px 0px 3px 0px #8DAA91;
+}
+
+
 /* copyright */
 #copyright {
     color: #333;

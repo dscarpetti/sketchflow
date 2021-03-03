@@ -124,7 +124,7 @@
                                       (str es "\n" pid " -> " id edge-str ";"))))
                                 ""
                                 children)]
-              (draw-nodes (str s "\n" node "\n" edges "\n") options children)))
+              (draw-nodes (str s "\n" node "\n" edges) options children)))
           s
           nodes))
 
@@ -164,10 +164,10 @@
                    color (str "node [" color-str "];\n")
                    shape (str "node [" shape-str "];\n"))
 
-        title (when title (str "label=\""title"\"; labelloc=bottom; labeljust=center;\n"))
+        title (when title (str "label=\""title"\"; labelloc=bottom; labeljust=center;\n\n"))
 
         ]
-    (str "digraph Network {\n"
+    (str "digraph Graph {\n\n"
          title
          rankdir
          "graph [nodesep=\""+nodesep+"\", ranksep=\""+ranksep+"\"" spline-str  "]\n"

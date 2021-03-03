@@ -189,13 +189,35 @@
 (defn help [state]
   help/rendered-help)
 
+(defn alt-formats [{:keys [sketch]}]
+  [:div.alt-formats
+   [:section
+    [:h2 "SVG"]
+    [:div.svg-display
+     {:dangerouslySetInnerHTML {:__html (:svg (:render sketch))}}
+     ]]
+   [:section.graphviz
+    [:h2 "GraphViz"]
+    #_[:div.dotstring
+     (:dot sketch)]
+    [:textarea
+     {:value (:dot sketch)
+      :rows 30
+      :on-change #(doto % (.preventDefault) (.stopPropagation))}]]
+
+
+   ])
+
 (def tabs
   [{:id :editor
     :name "Editor"
     :content #(editor % (:sketch %))}
    #_{:id :files
     :name "Files"
-    :content file-manager}
+      :content file-manager}
+   {:id :formats
+    :name "Formats"
+    :content #(alt-formats %)}
    {:id :help
     :name "Help"
     :content help}
