@@ -54,10 +54,15 @@
 (defn- parse-line [named-options node-table lines line]
   (let [ref-id (second (re-find #"\#([^\s]+)" line))
         ref-id (when ref-id (-> ref-id str/lower-case))
-        id (-> (or ref-id
-                   (str "node" (count node-table))
-                   (str (gensym "node")))
-               (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
+
+        id (if ref-id
+             (str "n_" (-> ref-id
+                           str/lower-case
+                           (str/replace #"[^a-zA-Z0-9_\-]" "")))
+             (str "n_" (count node-table)))
+        ;; id (-> (or ref-id
+        ;;            (str (gensym "node")))
+        ;;        (str/replace #"[/\+\*\&\s\-\[\]\)\(]" "_"))
 
 
         line (str/replace line #"\#[^\s]+\s*" "")
