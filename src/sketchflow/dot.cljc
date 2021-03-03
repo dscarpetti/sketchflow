@@ -97,7 +97,7 @@
 
 
 
-                  edges (reduce (fn [es {:keys [id port edge-options edge-label]}]
+                  edges (reduce (fn [es {:keys [id port edge-options edge-label edge-port-id]}]
                                   (let [edge-style (get-option edge-styles (concat edge-options options))
                                         edge-direction (get-option edge-directions (concat edge-options options))
                                         edge-strength (get-option edge-strengths (concat edge-options options))
@@ -107,6 +107,7 @@
                                         direction (when edge-direction (str " dir=\"" edge-direction "\""))
                                         strength (when edge-strength (str " weight=" edge-strength))
                                         components (remove nil? [label style direction strength])
+                                        edge-port-id (when edge-port-id (str ":" edge-port-id))
 
                                         edge-str (when (seq components)
                                                    (str "[" (str/join "," components) "]"))
@@ -120,8 +121,8 @@
 
                                     (if is-record
                                       (let [port-id (or (first port) "___main___")]
-                                        (str es "\n" pid ":" port-id " -> " id edge-str";"))
-                                      (str es "\n" pid " -> " id edge-str ";"))))
+                                        (str es "\n" pid ":" port-id " -> " id edge-port-id edge-str ";"))
+                                      (str es "\n" pid " -> " id edge-port-id edge-str ";"))))
                                 ""
                                 children)]
               (draw-nodes (str s "\n" node "\n" edges) options children)))

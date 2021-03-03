@@ -88,6 +88,18 @@
         ;;             "|" :solid
         ;;             nil)
         ;; edge-label (when edge-label (str/trim edge-label))
+
+
+        [_ edge-port edge-has-port edge-label] (when edge-label (re-matches #"([^\.]*)(\.?)([^\.]*)" (str/trim edge-label)))
+        [edge-port-name edge-label] (when edge-label
+                                      (if (str/blank? edge-has-port)
+                                        [nil (str/trim edge-port)]
+                                        [(str/trim edge-port) (str/trim edge-label)]))
+
+        edge-port-id (when edge-port-name
+                       (str "p_" (str/replace edge-port-name #"[/\+\*\&\s\-\[\]\)\(]" "_")))
+
+
         edge-label (clean-label edge-label)
 
         line (str/replace line #"\<[^\<\>]+\>" "")
@@ -134,8 +146,14 @@
                       :depth depth
                       ;:edge-type edge-type
                       :edge-options edge-options
-                      :raw-edge-options raw-edge-options
+                      ;;:raw-edge-options raw-edge-options
                       :edge-label edge-label
+
+                      :edge-port-id edge-port-id
+                      :edge-ports (if edge-port-id
+                                    (conj (:edge-ports existing-node) [edge-port-id edge-port-name])
+                                    (:edge-ports existing-node))
+
 
                       :options options
                       :raw-options (when raw-options (seq (map #(str/trim (str/lower-case %)) (str/split (str/replace raw-options #":" "") #"\s+"))))
@@ -149,8 +167,11 @@
                 :port (when port-id [port-id port-name])
                 ;;:edge-type edge-type
                 :edge-options edge-options
-                :raw-edge-options raw-edge-options
+                ;;:raw-edge-options raw-edge-options
                 :edge-label edge-label
+                :edge-port-id edge-port-id
+                :edge-ports (when edge-port-id [[edge-port-id edge-port-name]])
+
                 :depth depth})]
 
     [named-options
@@ -180,6 +201,7 @@
           children (create-tree named-options depth (filter :heritable options) children)
           ports (->> children
                      (map :port)
+                     (concat (:edge-ports device))
                      (remove nil?))
           device (assoc device
                         :depth depth
