@@ -579,7 +579,12 @@ button:hover {
     justify-content: flex-start;
     align-content: center;
     align-items: stretch;*/
-
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
 }
 
 .alt-formats section {
@@ -608,6 +613,7 @@ button:hover {
     white-space: pre-wrap;
     padding: 1ch;
     font-size: 0.8em;
+    cursor: text;
 }
 
 .alt-formats .graphviz textarea{

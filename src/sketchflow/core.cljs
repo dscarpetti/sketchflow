@@ -21,6 +21,53 @@
                             :sketch {:text nil
                                      :data nil}}))
 
+;; (defn add-undo-item! [undo-str]
+;;   (swap! app-state (fn [state]
+;;                      (let [undo-counter (inc (or (:undo/undo-counter state) -1))]
+;;                        (.setItem js/localStorage "sketchflow-v0-undo-count" undo-counter)
+;;                        (.setItem js/localStorage "sketchflow-v0-redo-count" "0")
+;;                        (.setItem js/localStorage (str "sketchflow-v0-undo-state-" undo-counter) undo-str)
+;;                        (assoc state
+;;                               :undo/undo-counter undo-counter
+;;                               :undo/redo-counter 0)))))
+
+;; (defn undo! []
+;;   (swap! app-state (fn [state]
+;;                      (let [undo-counter (:undo/undo-counter state)
+;;                            redo-counter (or (:undo/redo-counter state) 0)]
+;;                        (if (and (number? undo-counter) (pos? undo-counter))
+;;                          (let [undo-str (or (.getItem js/localStorage (str "sketchflow-v0-undo-state-" undo-counter)))
+;;                                new-undo-counter (dec undo-counter)
+;;                                new-redo-counter (inc redo-counter)]
+;;                            (.setItem js/localStorage "sketchflow-v0-undo-count" new-undo-counter)
+;;                            (.setItem js/localStorage "sketchflow-v0-redo-count" new-redo-counter)
+;;                            (assoc state
+;;                               :undo/undo-counter new-undo-counter
+;;                               :undo/redo-counter new-redo-counter))
+;;                          state)))))
+
+;; (defn redo! []
+;;   (swap! app-state (fn [state]
+;;                      (let [undo-counter (:undo/undo-counter state)
+;;                            redo-counter (or (:undo/redo-counter state) 0)]
+;;                        (if (and (number? redo-counter) (pos? redo-counter))
+;;                          (let [undo-str (or (.getItem js/localStorage (str "sketchflow-v0-undo-state-" redo-counter)))
+;;                                new-undo-counter (inc undo-counter)
+;;                                new-redo-counter (dec redo-counter)]
+;;                            (.setItem js/localStorage "sketchflow-v0-undo-count" new-undo-counter)
+;;                            (.setItem js/localStorage "sketchflow-v0-redo-count" new-redo-counter)
+;;                            (assoc state
+;;                                   :undo/undo-counter new-undo-counter
+;;                                   :undo/redo-counter new-redo-counter))
+;;                          state)))))
+
+;; (defn load-undos! []
+;;   (let [undo-counter (js/parseInt (or (.getItem js/localStorage "sketchflow-v0-undo-count") "0"))
+;;         redo-counter (js/parseInt (or (.getItem js/localStorage "sketchflow-v0-redo-count") "0"))]
+;;     (swap! app-state assoc
+;;            :undo/undo-counter undo-counter
+;;            :undo/redo-counter redo-counter)))
+
 (defn set-editor-value! [new-value]
   (let [data (lang2/parse-nodes new-value)
         new-dot (dot2/dot-string nil data)]
@@ -31,6 +78,7 @@
 
     (dotsvg/render-dot-string new-dot (fn [{:keys [status svg-uri error-message] :as render}]
                                         (.setItem js/localStorage "sketchflow-v0-auto" new-value)
+                                        ;;(add-undo-item! new-value)
                                         (swap! app-state assoc-in [:sketch :render] render)))))
 
 
@@ -113,9 +161,20 @@
                                (let [new-value (-> e .-target .-value)]
                                  (set-editor-value! new-value)))}])})))
 
-(defn editor [{:editor/keys [pretty-lines depth-buttons rainbow-buttons]} {:keys [text data]}]
+(defn editor [{;;:undo/keys [undo-counter redo-counter]
+               :editor/keys [pretty-lines depth-buttons rainbow-buttons]} {:keys [text data]}]
   [:div.editor
    [:div.editor-controls
+    #_[:div.control
+     [:button {:on-click undo!}
+      "<"]
+     (str undo-counter "/" redo-counter)
+     [:button {:on-click redo!}
+      ">"]
+
+
+     ]
+
     [:div.control
      [:button {:on-click (fn [e]
                            (try
@@ -202,9 +261,9 @@
      ]]
    [:section.graphviz
     [:h2 "GraphViz"]
-    #_[:div.dotstring
+    [:div.dotstring
      (:dot sketch)]
-    [:textarea
+    #_[:textarea
      {:value (:dot sketch)
       :rows 30
       :on-change #(doto % (.preventDefault) (.stopPropagation))}]]
@@ -294,27 +353,8 @@
     (layout state
             (header state)
             (drawer state)
-            (workspace state))
+            (workspace state))))
 
-
-
-    #_[:div
-     (editor (:sketch state))
-     [:textarea {:disabled true
-                 :rows 25
-                 :cols 70
-                 :value (lang/->string (-> state :sketch :data))}]
-     ;[:div (str state)]
-     (when-let [uri (-> state :sketch :render :png-uri)]
-       [:div {:style {:padding-left "20em"
-                      :position :fixed
-                      :top 0
-                      :bottom 0
-                      :left 0
-                      :right 0}}
-        [:img {:src uri
-               :style {:max-width "100%"
-                       :max-height "50vh"}}]])]))
 
 (def default-text
   "!title SketchFlow | Feature Demo
@@ -380,7 +420,7 @@ SketchFlow
    (set-editor-value! text)))
 
 
-
+;;(load-undos!)
 (render)
 
 
