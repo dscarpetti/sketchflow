@@ -324,25 +324,20 @@
                     (when edge-options " }")
                     ">"))
 
-        node-str (if reference
-                   (str s
-                        (subs spaces 0 depth)
-                        "#" raw-id
-                        edge
-                        "\n")
-                   (str s
-                        (subs spaces 0 depth)
+        node-str (str s
+                      (subs spaces 0 depth)
                       (when parent-port
                         (str (second parent-port) ". "))
-                      (unclean-label label)
+
+                      (when-not reference (unclean-label label))
 
                       (when raw-id
                         (str " #" raw-id))
                       edge
 
-                      (when options
+                      (when (and (not reference) options)
                         (str " { " (str/join " " (map option->string options)) " }"))
-                      "\n"))]
+                      "\n")]
 
       (reduce node->string
               node-str
