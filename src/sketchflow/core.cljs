@@ -3,6 +3,9 @@
    [sketchflow.help :as help]
    [sketchflow.lang :as lang]
    [sketchflow.dot :as dot]
+   [sketchflow.lang2 :as lang2]
+   [sketchflow.dot2 :as dot2]
+
    [sketchflow.dotsvg :as dotsvg]
    [clojure.string :as str]
    [clojure.pprint :refer [pprint]]
@@ -19,8 +22,8 @@
                                      :data nil}}))
 
 (defn set-editor-value! [new-value]
-  (let [data (lang/parse-nodes new-value)
-        new-dot (dot/dot-string nil data)]
+  (let [data (lang2/parse-nodes new-value)
+        new-dot (dot2/dot-string nil data)]
     (swap! app-state #(update % :sketch
                               merge {:data data
                                      :text new-value
@@ -118,7 +121,8 @@
                            (try
                              (do
                                ;;(println (lang/->string data))
-                               (swap! app-state assoc-in [:sketch :text] (lang/->string data)))
+                               #_(swap! app-state assoc-in [:sketch :text] (lang/->string data))
+                               (set-editor-value! (lang2/->string data)))
                              (catch :default e
                                (println e))))}
                    "Format"]]
@@ -313,7 +317,37 @@
                        :max-height "50vh"}}]])]))
 
 (def default-text
-"!title SketchFlow Feature Demo
+  "!title SketchFlow | Feature Demo
+!horizontal
+
+{ green }
+
+{ important: yellow folder }
+{ unimportant: grey note }
+
+SketchFlow
+ Features
+  Style Nodes { red box dashed }
+   And Edges
+   And Children { purple! hex! }
+    Inherit Styles
+    With !
+  Use IDs #node-id
+   For Complex Structure
+    #node-id
+  Create Ports <4. Inbound Port { dashed }>
+   1. X { important }
+   2. Y { unimportant }
+   3. Z { blue important! }
+    inherit | importance
+  Adjust Edges { naked! }
+   A <like this { reverse }>
+   B <or this { dashed }>
+   C <or even this { dotted }>
+   D <or go both ways { both }>
+    Enjoy! { orange egg }
+"
+#_"!title SketchFlow Feature Demo
 !horizontal
 
 SketchFlow
