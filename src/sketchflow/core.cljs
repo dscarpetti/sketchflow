@@ -375,10 +375,10 @@ SketchFlow
   Use IDs #node-id
    For Complex Structure
     #node-id
-  Create Ports <4. Inbound Port { dashed }>
-   1. X { important }
-   2. Y { unimportant }
-   3. Z { blue important! }
+  Create Ports <4) Inbound Port { dashed }>
+   1) X { important }
+   2) Y { unimportant }
+   3) Z { blue important! }
     inherit | importance
   Adjust Edges { naked! }
    A <like this { reverse }>

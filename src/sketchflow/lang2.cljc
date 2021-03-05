@@ -94,7 +94,7 @@
 
 
 
-(def ^:private extract-port-re #"([^\.]*)(\.?)([^\.]*)")
+(def ^:private extract-port-re #"([^\(\)]*)(\)?)(.*)")
 
 (defn- extract-port [s]
   (let [[_ port has-port remaining-str] (re-matches extract-port-re s)
@@ -335,19 +335,19 @@
                (str " <"
 
                     (when edge-port
-                      (str (second edge-port) ". "))
+                      (str (second edge-port) ")" (when edge-label " ")))
 
                     (unclean-label edge-label)
 
                     (when (and edge-label edge-options) " ")
-                    (when edge-options "{ ")
+                    (when edge-options "{")
                     (when edge-options (str/join " " (map name edge-options)))
-                    (when edge-options " }")
+                    (when edge-options "}")
                     ">"))
         node-str (str s
                       (subs spaces 0 depth)
                       (when parent-port
-                        (str (second parent-port) ". "))
+                        (str (second parent-port) ") "))
 
                       (when-not reference (unclean-label label))
                       ;;"[" depth "]"
@@ -356,7 +356,7 @@
                       edge
 
                       (when (and (not reference) options)
-                        (str " { " (str/join " " (map option->string options)) " }"))
+                        (str " {" (str/join " " (map option->string options)) "}"))
                       "\n")]
 
       (reduce node->string
@@ -373,9 +373,9 @@
                        (remove nil?
                                (map (fn [[nick opts]]
                                       (when nick
-                                        (str "{ " (name nick) ": "
+                                        (str "{" (name nick) ": "
                                              (str/join " " (map option->string opts))
-                                             " }")))
+                                             "}")))
                                     named-options)))]
     (str
      title
