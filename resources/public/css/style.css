@@ -257,6 +257,7 @@ button:hover {
     right: 0;
     padding: 1em 0;
     font-size: 0.9em;
+    line-height: 1.5;
 }
 /* simple overlay */
 .editor-overlay .editor-line {
@@ -465,6 +466,7 @@ button:hover {
     outline: none;
     padding: 1em;
     resize: none;
+    line-height: 1.5;
 
 }
 .editor-textarea textarea:focus, editor-field {
