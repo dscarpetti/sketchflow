@@ -168,6 +168,7 @@
                    :edge-port edge-port
                    :edge-label edge-label
                    :edge-options edge-options
+                   :port-only (not (or edge-port edge-label edge-options raw-id label options))
                    :depth depth})}))
 
 
@@ -226,10 +227,13 @@
                                  (identify-ports {} tree))]
       (letfn [(attach-ports [nodes]
                 (reduce (fn [res node]
-                          (conj res
-                                (assoc node
-                                       :ports (final-ports (:id node))
-                                       :children (attach-ports (:children node)))))
+                          (let [ports (final-ports (:id node))]
+                            (if (and (:port-only node) (nil? ports))
+                              res
+                              (conj res
+                                    (assoc node
+                                           :ports ports
+                                           :children (attach-ports (:children node)))))))
                         []
                         nodes))]
         (attach-ports tree)))))
