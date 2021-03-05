@@ -230,6 +230,9 @@ button:hover {
     justify-content: center;
     align-content: stretch;
     align-items: center;
+    background-color: white;
+    z-index: 100;
+    box-shadow: 2px 0px 3px 0px rgba(50,50,50,0.2);
 
 }
 .control {

@@ -126,6 +126,31 @@
      (deindent-button text line-number depth))
    (indent-button text line-number depth)])
 
+(def smart-text-scroll-top (r/atom 0))
+(defn smart-text-overlay [depth-buttons rainbow-buttons text]
+  [:div.editor-overlay {:style {:top (str @smart-text-scroll-top "px")}}
+   #_(map #(vector :div.editor-line (if (str/blank? %) " " %)) (str/split text #"\n"))
+   (map-indexed (fn [i line]
+                  (cond
+                    (str/blank? line)
+                    [:div.editor-overlay-line {:key i}
+                     [:div.line-depth]
+                     [:div.line-content " "]]
+
+                    (re-find #"^\s*[\{\!]" line)
+                    [:div.editor-overlay-line {:key i}
+                     [:div.line-depth "*"]
+                     [:div.line-content line]]
+
+                    :else
+                    (let [depth (count (second (re-find #"^(\s+)" line)))]
+                      [:div.editor-overlay-line {:key i}
+                       (if depth-buttons
+                         (depth-control text i depth rainbow-buttons)
+                         [:div.line-depth depth])
+                       [:div.line-content line]])))
+                (str/split text #"\n"))])
+
 (defn smart-text-editor [text]
   (let [set-point-at (atom nil)
         el (atom nil)]
@@ -139,6 +164,9 @@
     (fn [text]
       [:textarea {:value text
                   :ref #(reset! el %)
+                  :on-scroll (fn [e]
+                               ;;(println "scroll" (- (.-scrollTop @el)))
+                               (reset! smart-text-scroll-top (- (.-scrollTop @el))))
                   :spell-check "false"
                   :on-key-press (fn [e]
                                   (when (and (= (.-key e) "Enter")
@@ -212,37 +240,17 @@
 
    [:div.editor-area
     (when pretty-lines
-      [:div.editor-overlay
-       #_(map #(vector :div.editor-line (if (str/blank? %) " " %)) (str/split text #"\n"))
-       (map-indexed (fn [i line]
-                      (cond
-                        (str/blank? line)
-                        [:div.editor-overlay-line {:key i}
-                         [:div.line-depth]
-                         [:div.line-content " "]]
+      (smart-text-overlay depth-buttons rainbow-buttons text))
 
-                        (re-find #"^\s*[\{\!]" line)
-                        [:div.editor-overlay-line {:key i}
-                         [:div.line-depth "*"]
-                         [:div.line-content line]]
-
-                        :else
-                        (let [depth (count (second (re-find #"^(\s+)" line)))]
-                          [:div.editor-overlay-line {:key i}
-                           (if depth-buttons
-                             (depth-control text i depth rainbow-buttons)
-                             [:div.line-depth depth])
-                           [:div.line-content line]])))
-                    (str/split text #"\n"))])
     [:div.editor-textarea
      (if pretty-lines
        [smart-text-editor text]
        [:textarea {:value text
-                 :spell-check "false"
-                 :on-change (fn [e]
-                              (doto e (.preventDefault) (.stopPropagation))
-                              (let [new-value (-> e .-target .-value)]
-                                (set-editor-value! new-value)))}])
+                   :spell-check "false"
+                   :on-change (fn [e]
+                                (doto e (.preventDefault) (.stopPropagation))
+                                (let [new-value (-> e .-target .-value)]
+                                  (set-editor-value! new-value)))}])
 
      ]]])
 
