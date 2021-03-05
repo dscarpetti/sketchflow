@@ -127,8 +127,11 @@
    (indent-button text line-number depth)])
 
 (def smart-text-scroll-top (r/atom 0))
+(def smart-text-scrollbar (r/atom false))
 (defn smart-text-overlay [depth-buttons rainbow-buttons text]
-  [:div.editor-overlay {:style {:top (str @smart-text-scroll-top "px")}}
+  [:div.editor-overlay {:style {:top (str @smart-text-scroll-top "px")
+                                :overflow-y (if @smart-text-scrollbar "scroll" "auto")
+                                }}
    #_(map #(vector :div.editor-line (if (str/blank? %) " " %)) (str/split text #"\n"))
    (map-indexed (fn [i line]
                   (cond
@@ -156,10 +159,14 @@
         el (atom nil)]
   (r/create-class
    {:component-did-update (fn [& args]
+                            ;;(println (.-scrollHeight @el) (.-clientHeight @el))
+                            (reset! smart-text-scrollbar (> (.-scrollHeight @el) (.-clientHeight @el)))
                             (when-let [pos @set-point-at]
                               (reset! set-point-at nil)
                               (set! (.-selectionStart @el) pos)
                               (set! (.-selectionEnd @el) pos)))
+    :component-did-mount (fn [& args]
+                           (reset! smart-text-scrollbar (> (.-scrollHeight @el) (.-clientHeight @el))))
     :reagent-render
     (fn [text]
       [:textarea {:value text
