@@ -213,6 +213,27 @@
 
 ;;;; Parse
 
+(defn- collect-ports [tree]
+  (letfn [(identify-ports [id->ports nodes]
+            (reduce (fn [id->ports {:keys [ports id children]}]
+                      (identify-ports (update id->ports id concat ports) children))
+                    id->ports
+                    nodes))]
+    (let [final-ports (reduce-kv (fn [res id ports]
+                                   (let [ports (seq (remove nil? ports))]
+                                     (assoc res id (when ports (into (sorted-set-by port-compare) ports)))))
+                                 {}
+                                 (identify-ports {} tree))]
+      (letfn [(attach-ports [nodes]
+                (reduce (fn [res node]
+                          (conj res
+                                (assoc node
+                                       :ports (final-ports (:id node))
+                                       :children (attach-ports (:children node)))))
+                        []
+                        nodes))]
+        (attach-ports tree)))))
+
 
 (defn- create-tree [default-display-options parent [node & nodes]]
   (if (nil? node)
@@ -295,7 +316,7 @@
      :nodesep nodesep
      :default-options default-options
      :named-options named-options
-     :tree (create-tree default-display-options nil nodes)}))
+     :tree (collect-ports (create-tree default-display-options nil nodes))}))
 
 (def parse-nodes parse)
 
@@ -310,7 +331,7 @@
 
 
 (defn- node->string [s {:keys [depth parent-port children label options raw-id reference edge-options edge-label edge-port] :as node}]
-  (let [edge (when (or edge-options edge-label)
+  (let [edge (when (or edge-options edge-label edge-port)
                (str " <"
 
                     (when edge-port
@@ -323,16 +344,15 @@
                     (when edge-options (str/join " " (map name edge-options)))
                     (when edge-options " }")
                     ">"))
-
         node-str (str s
                       (subs spaces 0 depth)
                       (when parent-port
                         (str (second parent-port) ". "))
 
                       (when-not reference (unclean-label label))
-
+                      ;;"[" depth "]"
                       (when raw-id
-                        (str " #" raw-id))
+                        (str (when (or parent-port (not reference)) " ") "#" raw-id))
                       edge
 
                       (when (and (not reference) options)
