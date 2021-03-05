@@ -44,7 +44,7 @@
   [:div.list (into [:ul] (map #(vector :li %) children))])
 
 (defn note [s]
-  [:p.note s])
+  [:span.note s])
 
 (defn help []
   [:div#help
@@ -63,17 +63,17 @@
              "To connect children, use indentation")
 
     (example :simple-node-lines
-            "Sprinklers
+             "Sprinklers
   Front Yard | Lawn
   Back Yard | Garden | (plant soon!)"
-            [:p "Use the pipe "[:code "|"]" character to create multiple lines"])
+             [:span "Use the pipe "[:code "|"]" character to create multiple lines"])
 
     (example :simple-node-cycle
              "A #top
  B
   C
    #top"
-             [:p "You can use the hash symbol "[:code "#"]" to give a node an ID. You can then use that id later to connect back to that node"])
+             [:span "You can use the hash symbol "[:code "#"]" to give a node an ID. You can then use that id later to connect back to that node"])
 
     ]
    [:section
@@ -183,13 +183,13 @@ Wireless Networks
 Star Power!!")]
    [:section
     [:h1 "Label & Style Edges"]
-     [:p "Edges can be labeled and/or given an individual style. Edge labels are put between "
-      [:code "<"]
-      " and "
-      [:code ">"]
-      ". E.g. "
-      [:code "<I am a label>"]
-      ]
+    [:p "Edges can be labeled and/or given an individual style. Edge labels are put between "
+     [:code "<"]
+     " and "
+     [:code ">"]
+     ". E.g. "
+     [:code "<I am a label>"]
+     ]
     [:p "To style a specific edge, include its style " [:code "{}"] " within the " [:code "<>"] "'s"]
     [:p
      "E.g. "[:code "<I am dotted and reversed edge { dotted reversed }>"]]
@@ -203,42 +203,42 @@ Star Power!!")]
   Y <X to Y>
   Z <X to Z override { solid }>")]
 
-
-   [:h2 "Edge Directions"]
-   [:p "You can change where the arrow is drawn on edges."]
-   (example :edge-dir
-            "Alice {reverse!}
+   [:section
+    [:h2 "Edge Directions"]
+    [:p "You can change where the arrow is drawn on edges."]
+    (example :edge-dir
+             "Alice {reverse!}
  Bill <{forward}>
  Bob
   Charlie <{both}>
   Danielle <{reverse}>
    Eli"
-            "note the differences between applying edge styles on a node (affecting all of it's outgoing edges) vs applying the style directly to an edge with <{style}> which changes just that single incoming edge."
-            (note "remember that edge styles on a node can be passed to all descendants with '!', but edge styles on a specific edge cannot"))
+             "note the differences between applying edge styles on a node (affecting all of it's outgoing edges) vs applying the style directly to an edge with <{style}> which changes just that single incoming edge."
+             (note "remember that edge styles on a node can be passed to all descendants with '!', but edge styles on a specific edge cannot"))
 
-   [:h2 "Edge Strength"]
-   [:p "Edge strengths change how the graph is layed out. Compare:"]
-   (example :edges-normal
-           "A #top
+    [:h2 "Edge Strength"]
+    [:p "Edge strengths change how the graph is layed out. Compare:"]
+    (example :edges-normal
+             "A #top
  B
   C
    #top"
-           [:span [:strong "normal "] "edge connecting C back to A"])
-   (example :edges-weak
-            "A #top
+             [:span [:strong "normal "] "edge connecting C back to A"])
+    (example :edges-weak
+             "A #top
  B
   C
    #top <{weak}>"
-            [:span [:strong "weak "] "edge connecting C back to A"])
-   (example :edges-strong
-            "A #top
+             [:span [:strong "weak "] "edge connecting C back to A"])
+    (example :edges-strong
+             "A #top
  B
   C
    #top <{strong}>"
-            [:span [:strong "strong "] "edge connecting C back to A"])
+             [:span [:strong "strong "] "edge connecting C back to A"])
 
 
-
+    ]
    [:section
     [:h1 "Flags"]
     [:p "Flags set options for your graph. They go at the top and start with "[:code "!"]"."]
