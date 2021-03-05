@@ -362,30 +362,30 @@
 
 { green }
 
-{ important: yellow folder }
-{ unimportant: grey note }
+{important: yellow folder}
+{unimportant: grey note}
 
 SketchFlow
  Features
-  Style Nodes { red box dashed }
+  Style Nodes {red box dashed}
    And Edges
-   And Children { purple! hex! }
+   And Children {purple! hex!}
     Inherit Styles
     With !
   Use IDs #node-id
    For Complex Structure
     #node-id
-  Create Ports <4) Inbound Port { dashed }>
-   1) X { important }
-   2) Y { unimportant }
-   3) Z { blue important! }
+  Create Ports <4) Inbound Port {dashed}>
+   1) X {important}
+   2) Y {unimportant}
+   3) Z {blue important!}
     inherit | importance
-  Adjust Edges { naked! }
-   A <like this { reverse }>
-   B <or this { dashed }>
-   C <or even this { dotted }>
-   D <or go both ways { both }>
-    Enjoy! { orange egg }
+  Adjust Edges {naked!}
+   A <like this {reverse}>
+   B <or this {dashed}>
+   C <or even this {dotted}>
+   D <or go both ways {both}>
+    Enjoy! {orange egg}
 "
 #_"!title SketchFlow Feature Demo
 !horizontal
