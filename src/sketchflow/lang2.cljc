@@ -230,7 +230,7 @@
       (letfn [(attach-ports [nodes]
                 (reduce (fn [res node]
                           (let [ports (final-ports (:id node))]
-                            (if (and (:port-only node) (nil? ports))
+                            (if (and (:port-only node) (nil? ports) (empty? (:children node)))
                               res
                               (conj res
                                     (assoc node
