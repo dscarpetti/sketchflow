@@ -77,7 +77,7 @@
                                      :dot new-dot}))
 
     (dotsvg/render-dot-string new-dot (fn [{:keys [status svg-uri error-message] :as render}]
-                                        (.setItem js/localStorage "sketchflow-v0-auto" new-value)
+                                        (.setItem js/localStorage "sketchflow-v002-auto" new-value)
                                         ;;(add-undo-item! new-value)
                                         (swap! app-state assoc-in [:sketch :render] render)))))
 
@@ -429,7 +429,7 @@ SketchFlow
 
 (defn render []
   (rdom/render [shell] (gdom/getElement "app"))
-  (let [text (or (-> @app-state :sketch :text) (.getItem js/localStorage "sketchflow-v0-auto"))
+  (let [text (or (-> @app-state :sketch :text) (.getItem js/localStorage "sketchflow-v002-auto"))
         text (if (str/blank? text) default-text text)]
 
    (set-editor-value! text)))
