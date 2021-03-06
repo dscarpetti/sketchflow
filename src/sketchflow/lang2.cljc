@@ -126,7 +126,8 @@
 ;;;; Nodes
 
 (defn- parse-node-line [{:keys [named-options node-table nodes]} line]
-  (let [raw-id (second (re-find #"\#([^\s]+)" line))
+  (let [[line comment] (str/split line "//")
+        raw-id (second (re-find #"\#([^\s]+)" line))
         id (if raw-id
              (str "id_" (-> raw-id
                             str/lower-case
@@ -169,6 +170,7 @@
                    :edge-label edge-label
                    :edge-options edge-options
                    :port-only (not (or edge-port edge-label edge-options raw-id label options))
+                   :comment comment
                    :depth depth})}))
 
 
@@ -334,7 +336,9 @@
   (str (name (:opt-id opt)) (when (:heritable opt) "!")))
 
 
-(defn- node->string [s {:keys [depth parent-port children label options raw-id reference edge-options edge-label edge-port] :as node}]
+(defn- node->string [s {:keys [depth parent-port children label options raw-id reference
+                               edge-options edge-label edge-port
+                               comment] :as node}]
   (let [edge (when (or edge-options edge-label edge-port)
                (str " <"
 
@@ -361,6 +365,8 @@
 
                       (when (and (not reference) options)
                         (str " {" (str/join " " (map option->string options)) "}"))
+
+                      (when comment (str " //" comment))
                       "\n")]
 
       (reduce node->string
